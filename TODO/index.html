@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Professional Task Tracker</title>
+    <style>
+        /* Base Colors and Fonts */
+        :root {
+            --bg-dark: #2c3e50;
+            --bg-light: #34495e;
+            --primary-blue: #3498db;
+            --success-green: #2ecc71;
+            --pending-yellow: #f1c40f;
+            --shadow-dark: rgba(0, 0, 0, 0.4);
+            --shadow-light: rgba(255, 255, 255, 0.05);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: #ecf0f1;
+            margin: 0;
+            padding: 50px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Container (The main card) */
+        .container {
+            background-color: var(--bg-light);
+            padding: 35px 45px;
+            border-radius: 20px;
+            box-shadow: 
+                8px 8px 15px var(--shadow-dark), 
+                -8px -8px 15px var(--shadow-light); /* Neumorphic effect */
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.3s;
+        }
+        
+        h1 {
+            color: var(--primary-blue);
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 5px var(--shadow-dark);
+        }
+        
+        #task-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        /* Task Item Styles */
+        #task-list li {
+            background-color: var(--bg-light);
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* Subtle inner shadow for 'pressed' look */
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .task-done {
+            opacity: 0.6;
+            text-decoration: line-through;
+            color: #bdc3c7;
+            border-left: 6px solid var(--success-green);
+        }
+        
+        .task-pending {
+            border-left: 6px solid var(--pending-yellow);
+        }
+
+        .status-badge {
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .badge-done {
+            background-color: var(--success-green);
+            color: var(--bg-dark);
+        }
+        
+        .badge-pending {
+            background-color: var(--pending-yellow);
+            color: var(--bg-dark);
+        }
+        
+        .api-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.85em;
+            color: #95a5a6;
+        }
+        .api-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        /* Loading Animation (enhanced) */
+        .loading {
+            opacity: 0.8;
+            animation: pulse 1.5s infinite ease-in-out;
+            background-color: var(--bg-dark);
+            color: #ecf0f1;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Professional Task Dashboard</h1>
+        
+        <ul id="task-list">
+            <li class="loading">Loading data from API...</li>
+        </ul>
+
+        <div class="api-link">
+            This data is dynamically loaded from the API endpoint.
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/api/items/';
+        
+        const PLACEHOLDER_TASKS = [
+            { id: 1, name: "Finalize Django REST API Backend", done: true },
+            { id: 2, name: "Prepare Presentation Materials", done: false },
+            { id: 3, name: "Review Neumorphic UI Design", done: true },
+            { id: 4, name: "Push Code to GitHub", done: false },
+        ];
+        
+        function renderTasks(data) {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = ''; 
+
+            data.forEach(task => {
+                const listItem = document.createElement('li');
+                const isDone = task.done;
+                
+                listItem.className = isDone ? 'task-done' : 'task-pending';
+
+                const taskName = document.createElement('span');
+                taskName.textContent = task.name;
+
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'status-badge ' + (isDone ? 'badge-done' : 'badge-pending');
+                statusBadge.textContent = isDone ? 'COMPLETE' : 'PENDING';
+
+                listItem.appendChild(taskName);
+                listItem.appendChild(statusBadge);
+                taskList.appendChild(listItem);
+            });
+        }
+        
+        function simulateAPICall() {
+            const SIMULATED_DELAY_MS = 2000; 
+
+            new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(PLACEHOLDER_TASKS);
+                }, SIMULATED_DELAY_MS);
+            })
+            .then(data => {
+                renderTasks(data);
+            })
+            .catch(error => {
+                document.getElementById('task-list').innerHTML = 
+                    '<li>❌ Error connecting to ' + API_URL + '</li>';
+            });
+        }
+
+        simulateAPICall();
+    </script>
+</body>
+</html>
